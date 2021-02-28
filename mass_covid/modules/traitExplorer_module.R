@@ -11,7 +11,8 @@ traitExplorer <- function(input, output, session, df, title = "Title") {
     fluidRow(
       box(width = 3, title = "Trait", solidHeader = TRUE, status = "warning",
           selectInput(ns("interactive_trait"), "trait",
-                      choices = unique(df$Trait))
+                      choices = unique(df$Trait)),
+          checkboxInput(ns("trend_line"), "Show trend line", value = FALSE)
       ),
       box(width = 9, title = "Interactive Plot", solidHeader = TRUE, status = "primary",
           plotlyOutput(ns("interactive_trait_plot"))
@@ -20,7 +21,9 @@ traitExplorer <- function(input, output, session, df, title = "Title") {
   })
   
   output$interactive_trait_plot <- renderPlotly({
-    ggplotly(interactive_plot(df, input$interactive_trait, input$interactive_trait))
+    ggplotly(interactive_plot(df = df, trait_sel = input$interactive_trait, 
+                              title = input$interactive_trait,
+                              trend_line = input$trend_line))
   })
 }
 
@@ -39,7 +42,8 @@ traitExplorer2 <- function(input, output, session, df, title = NULL) {
           selectInput(ns("group"), "group",
                       choices = unique(df$Group)),
           selectInput(ns("interactive_trait"), "trait",
-                      choices = unique(df$Trait))
+                      choices = unique(df$Trait)),
+          checkboxInput(ns("trend_line"), "Show trend line", value = TRUE)
       ),
       box(width = 9, title = "Interactive Plot", solidHeader = TRUE, status = "primary",
           plotlyOutput(ns("interactive_trait_plot"))
@@ -49,7 +53,10 @@ traitExplorer2 <- function(input, output, session, df, title = NULL) {
   
   #if (is_null(title)) title <- input$interactive_trait
   output$interactive_trait_plot <- renderPlotly({
-    ggplotly(interactive_plot(filter(df, Group == input$group), input$interactive_trait, title = input$interactive_trait))
+    ggplotly(interactive_plot(df = filter(df, Group == input$group), 
+                              trait_sel = input$interactive_trait, 
+                              title = input$interactive_trait,
+                              trend_line = input$trend_line))
   })
 }
 
