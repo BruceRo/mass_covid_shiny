@@ -23,6 +23,14 @@ cumulative_to_active_town <- function(cumulative){
   return(cumulative - temp)
 }
 
+get_pop <- function(pop_df, group){
+  getPop <- Vectorize(function(group){
+    filter(pop_df, Group == group)$Population
+  })
+  getPop(group)
+  
+}
+
 prep_town_data <- function(file, date){
   town_data <- docxtractr::read_docx(file)
   town_data <- docx_extract_tbl(town_data)
@@ -43,18 +51,40 @@ build_town_data <- function(){
   return(town_data)
 }
 
-comparison_plot <- function(df = all_data,  cat1_vec, cat2_vec, trait_vec, compare_cat, perCap = FALSE, title = "Title"){
-  df <- df %>% 
-    filter(cat1 %in% cat1_vec) %>% 
-    filter(cat2 %in% cat2_vec) %>% 
-    filter(Trait %in% trait_vec)
-  ggplot(df, aes(x = Date, y = Value, color = !!sym(compare_cat))) +
-    geom_line(alpha = 0.5) +
-    geom_smooth( ) +
-    labs(title = title) +
-    theme_minimal()
-}
+# comparison_plot <- function(df = all_data,  cat1_vec, cat2_vec, trait_vec, compare_cat, perCap = FALSE, title = "Title"){
+#   df <- df %>% 
+#     filter(cat1 %in% cat1_vec) %>% 
+#     filter(cat2 %in% cat2_vec) %>% 
+#     filter(Trait %in% trait_vec)
+#   ggplot(df, aes(x = Date, y = Value, color = !!sym(compare_cat))) +
+#     geom_line(alpha = 0.5) +
+#     geom_smooth( ) +
+#     labs(title = title) +
+#     theme_minimal()
+# }
 #comparison_plot(df = all_data, cat1_vec = "state",cat2_vec = "Massachusetts", trait_vec = c("DeathsDaily", "PositiveDaily"), compare_cat = "Trait" )
+comparison_plot <- function(df, df_pop = NULL, group_vec, trait,  perCap = FALSE, title = "Title", trend_line = FALSE){
+  df <- df %>%
+    filter(Group %in% group_vec) %>%
+    filter(Trait == trait) 
+  if (perCap) {
+    df <- df %>% 
+      mutate(Value = round(Value/get_pop(df_pop, Group)*100000))
+  }
+  if (trend_line){
+    ggplot(df, aes(x = Date, y = Value, color = Group)) +
+      geom_line(alpha = 0.5) +
+      geom_smooth( ) +
+      labs(title = title) +
+      theme_minimal()
+  } else {
+    ggplot(df, aes(x = Date, y = Value, color = Group)) +
+      geom_line(alpha = 0.5) +
+      labs(title = title) +
+      theme_minimal()
+  }
+  
+}
 
 interactive_plot <- function(df, trait_sel, title, trend_line = FALSE){
   df <- df %>% 
@@ -79,23 +109,44 @@ interactive_plot <- function(df, trait_sel, title, trend_line = FALSE){
 }
 #interactive_plot("County", "Middlesex", "PositiveDaily")
 
-pie_chart <- function(cat1_sel, trait, remove_unknown = FALSE){
-  df <- all_data %>% 
-    filter(cat1 == cat1_sel,
-           Trait == trait,
-           Date == max(all_data$Date)
-    )
-  if (remove_unknown){
-    df <- df %>% 
-      filter(!(cat2 %in% c("Unknown", "Unknown1", "Unknown/Missing")))
-  }
-  g <- ggplot(df, aes(x = "", y = Value, fill = cat2)) +
-    geom_bar(width = 1, stat = "identity", color = "white") +
-    coord_polar("y", start = 0) +
-    labs(title = trait) +
-    theme_void()
-}
+# pie_chart <- function(cat1_sel, trait, remove_unknown = FALSE){
+#   df <- all_data %>% 
+#     filter(cat1 == cat1_sel,
+#            Trait == trait,
+#            Date == max(all_data$Date)
+#     )
+#   if (remove_unknown){
+#     df <- df %>% 
+#       filter(!(cat2 %in% c("Unknown", "Unknown1", "Unknown/Missing")))
+#   }
+#   g <- ggplot(df, aes(x = "", y = Value, fill = cat2)) +
+#     geom_bar(width = 1, stat = "identity", color = "white") +
+#     coord_polar("y", start = 0) +
+#     labs(title = trait) +
+#     theme_void()
+# }
 #print(pie_chart("Race_Ethnicity", "Positive", TRUE))
+
+pie_bar_chart <- function(df, trait, type = "pie", title = "title"){
+  df <- df %>% 
+    filter(Trait == trait) %>% 
+    select(Group, Value)
+  
+  if (type == "pie"){
+    g <- ggplot(df, aes(x = "", y = Value, fill = Group)) +
+      geom_bar(width = 1, stat = "identity", color = "white") +
+      coord_polar("y", start = 0) +
+      labs(title = title) +
+      #scale_fill_manual(values = ) +
+      theme_void()
+  } else if (type == "bar"){
+    g <- ggplot(df) +
+      geom_col(aes(x = Group, y = Value, fill = Group) ) +
+      labs(title = title) +
+      theme_minimal()
+  }
+  
+}
 
 bar_chart <- function(cat1_sel, trait, remove_unknown = FALSE, interactive_g = TRUE){
   df <- all_data %>% 
