@@ -12,6 +12,9 @@ traitExplorer <- function(input, output, session, df, title = "Title") {
       box(width = 3, title = "Trait", solidHeader = TRUE, status = "warning",
           selectInput(ns("interactive_trait"), "trait",
                       choices = unique(df$Trait)),
+          dateRangeInput(ns("date_range"), "date range",
+                         min = min(df$date),
+                         max = max(df$date)),
           checkboxInput(ns("trend_line"), "Show trend line", value = FALSE)
       ),
       box(width = 9, title = "Interactive Plot", solidHeader = TRUE, status = "primary",
@@ -21,12 +24,14 @@ traitExplorer <- function(input, output, session, df, title = "Title") {
   })
   
   output$interactive_trait_plot <- renderPlotly({
-    ggplotly(interactive_plot(df = df, trait_sel = input$interactive_trait, 
+    ggplotly(interactive_plot(df = filter(df, Date >= input$date_range[1] & Date <= input$date_range[2]), trait_sel = input$interactive_trait, 
                               title = input$interactive_trait,
                               trend_line = input$trend_line))
   })
 }
 
+
+# traitExplorer 2 for df with group
 traitExplorer2UI <- function(id){
   ns <- NS(id)
   
