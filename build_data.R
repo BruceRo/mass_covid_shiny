@@ -71,7 +71,6 @@ make_reported_cases <- function(){
   return(reported_cases)
 }
 
-
 make_death_by_date <- function(){
   death_by_date <- readxl::read_xlsx("today.xlsx", 
                             sheet = "DateofDeath")
@@ -114,13 +113,27 @@ make_reported_deaths <- function(){
   return(reported_deaths)
 }
 
+make_hospitalization_from_hospitals <- function(){
+  hospitalization_from_hospitals <- readxl::read_xlsx("today.xlsx", 
+                                                      sheet = "Hospitalization from Hospitals")
+  hospitalization_from_hospitals <- hospitalization_from_hospitals %>% 
+    mutate(Date = ymd(`Date`))
+  hospitalization_from_hospitals <- hospitalization_from_hospitals %>% 
+    pivot_longer(names(hospitalization_from_hospitals)[names(hospitalization_from_hospitals) != "Date"], names_to = "Trait", values_to = "Value")
+  
+  return(hospitalization_from_hospitals)
+}
+
+
 ##
+update_data()
 death_by_date <- make_death_by_date()
 reported_cases <- make_reported_cases()
 reported_deaths <- make_reported_deaths()
 
 state_data <- rbind(death_by_date, reported_cases, reported_deaths)
 
+hospitalization_from_hospitals <- make_hospitalization_from_hospitals()
 
 #print(bar_chart("Race_Ethnicity", "Positive", TRUE, FALSE))
 

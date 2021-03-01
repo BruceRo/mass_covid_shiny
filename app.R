@@ -97,7 +97,7 @@ ui <- dashboardPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   callModule(traitExplorer, id = "state_TE", state_data)
-  callModule(traitExplorer, id = "hospital_TE", hospitalization_data)
+  callModule(traitExplorer, id = "hospital_TE", hospitalization_from_hospitals)
   callModule(traitExplorer, id = "testing_TE", testing_data)
   callModule(traitExplorer2, id = "race_TE2", race_eth_data)
   callModule(traitExplorer2, id = "sex_TE2", filter(sex_data, Group != "Unknown"))
