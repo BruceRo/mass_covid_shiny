@@ -71,7 +71,7 @@ ui <- dashboardPage(
                     traitExplorer2UI("town_TE2"),
                     groupComparisonGraphUI("town_GCG"),
                     fluidRow(
-                      box(width = 12, title = "Town Cumulative Positive", solidHeader = TRUE, status = "primary",
+                      box(width = 12, title = "Town Latest Data", solidHeader = TRUE, status = "primary",
                           DT::dataTableOutput("towns_DT_table")
                           )
                     )
@@ -103,11 +103,11 @@ server <- function(input, output) {
   callModule(traitExplorer2, id = "sex_TE2", filter(sex_data, Group != "Unknown"))
   callModule(traitExplorer2, id = "county_TE2", county_daily)
   callModule(traitExplorer2, id = "age_TE2", age_data)
-  callModule(traitExplorer2, id = "town_TE2", town_data)
+  callModule(traitExplorer2, id = "town_TE2", weekly_city_town)
   
   callModule(groupComparisonGraph, id = "county_GCG", county_daily, county_populations, starting_comparison ="Middlesex")
   callModule(groupComparisonGraph, id = "age_GCG", age_data, age_populations)
-  callModule(groupComparisonGraph, id = "town_GCG", town_data, town_population, starting_comparison = c("State Total", "Winchester"))
+  callModule(groupComparisonGraph, id = "town_GCG", weekly_city_town, town_populations, starting_comparison = c("Arlington", "Winchester"))
   callModule(groupComparisonGraph, id = "race_GCG", race_eth_data, race_population)
   callModule(groupComparisonGraph, id = "sex_GCG", filter(sex_data, Group != "Unknown"), sex_population, starting_comparison = c("Male", "Female"))
   
