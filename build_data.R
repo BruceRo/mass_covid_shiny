@@ -124,6 +124,23 @@ make_hospitalization_from_hospitals <- function(){
   return(hospitalization_from_hospitals)
 }
 
+make_county_daily <- function(){
+  county_daily <- readxl::read_xlsx("today.xlsx", 
+                                    sheet = "County_Daily")
+  county_daily <- county_daily %>% 
+    mutate(Date = ymd(`Date`))
+  county_daily <- county_daily %>% 
+    group_by(County) %>% 
+    mutate(cases_last_two_weeks = cumulative_to_14_day(`Total Confirmed Cases`))
+  county_daily$cases_last_two_weeks[county_daily$Date < ymd("2020-9-3")] <- NA
+  county_daily <- county_daily %>% 
+    pivot_longer(names(county_daily)[names(county_daily) != "Date" & names(county_daily) != "County"], names_to = "Trait", values_to = "Value")
+  county_daily <- county_daily %>% 
+    rename("Group" = "County")
+  
+  return(county_daily)
+}
+
 
 ##
 update_data()
@@ -135,6 +152,8 @@ state_data <- rbind(death_by_date, reported_cases, reported_deaths)
 
 hospitalization_from_hospitals <- make_hospitalization_from_hospitals()
 
+county_daily <- make_county_daily()
+latest_county_data <- county_daily %>% filter(Date == max(county_daily$Date), Group != "Unknown", Group != "Dukes and Nantucket")
 #print(bar_chart("Race_Ethnicity", "Positive", TRUE, FALSE))
 
 
@@ -266,5 +285,5 @@ hospitalization_from_hospitals <- make_hospitalization_from_hospitals()
 
 #ageGroup_list <- unique(age_data$Age)
 county_populations <- read_csv("mass_covid/populations/countyPopulations.csv")
-
+county_populations <- county_populations %>% rename("Group" = "County")
 

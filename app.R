@@ -101,11 +101,11 @@ server <- function(input, output) {
   callModule(traitExplorer, id = "testing_TE", testing_data)
   callModule(traitExplorer2, id = "race_TE2", race_eth_data)
   callModule(traitExplorer2, id = "sex_TE2", filter(sex_data, Group != "Unknown"))
-  callModule(traitExplorer2, id = "county_TE2", county)
+  callModule(traitExplorer2, id = "county_TE2", county_daily)
   callModule(traitExplorer2, id = "age_TE2", age_data)
   callModule(traitExplorer2, id = "town_TE2", town_data)
   
-  callModule(groupComparisonGraph, id = "county_GCG", county, county_populations, starting_comparison ="Middlesex")
+  callModule(groupComparisonGraph, id = "county_GCG", county_daily, county_populations, starting_comparison ="Middlesex")
   callModule(groupComparisonGraph, id = "age_GCG", age_data, age_populations)
   callModule(groupComparisonGraph, id = "town_GCG", town_data, town_population, starting_comparison = c("State Total", "Winchester"))
   callModule(groupComparisonGraph, id = "race_GCG", race_eth_data, race_population)
@@ -117,7 +117,7 @@ server <- function(input, output) {
   callModule(groupChart, id = "sex_GC", filter(sex_data, Group != "Unknown"), sex_population)
   
   callModule(groupPercentageGraph, id = "ageGPG", filter(latest_age_data, Trait %in% c("Cases", "Hospitalized", "Deaths")), age_populations)
-  callModule(groupPercentageGraph, id = "countyGPG", filter(latest_county_data, Trait %in% c("Count", "ActiveApproximation", "Deaths")), county_populations)
+  callModule(groupPercentageGraph, id = "countyGPG", filter(latest_county_data, Trait %in% c("Total Confirmed Cases", "cases_last_two_weeks", "Total Probable and Confirmed Deaths")), county_populations)
   callModule(groupPercentageGraph, id = "raceGPG", filter(latest_race_data, Trait %in% c("Positive", "everHospitalized", "Deaths")), race_population)
   
 
