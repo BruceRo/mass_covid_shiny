@@ -31,6 +31,10 @@ get_pop <- function(pop_df, group){
   
 }
 
+get_value_by_date <- function(df, date, trait){
+  df %>% filter(Date == date, Trait == trait) %>% `[[`("Value")
+}
+
 prep_town_data <- function(file, date){
   town_data <- docxtractr::read_docx(file)
   town_data <- docx_extract_tbl(town_data)

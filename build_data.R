@@ -197,7 +197,47 @@ make_town_DT <- function(){
   return(towns_DT)
 }
 
+# make_age_data <- function(){
+#   cases_by_age <- readxl::read_xlsx("today.xlsx", 
+#                                     sheet = "CasesbyAge")
+#   cases_by_age <- cases_by_age %>%
+#     mutate(Date = ymd(`Date`)) %>%
+#     select(-`Average Age of Cases that were hospitalized`, -`Average age of deaths`,
+#            -`Average daily incidence rate per 100,000 (last 14 days)`) 
+#   cases_by_age <- cases_by_age %>%
+#     pivot_longer(names(cases_by_age)[names(cases_by_age) != "Date"], names_to = "Group", values_to = "Value")
+#   cases_by_age$Trait <- "Positive Case"
+#   
+#   return(cases_by_age)
+# }
+
+make_age_data <- function(){
+  cases_by_age <- readxl::read_xlsx("today.xlsx", 
+                                    sheet = "AgeLast2Weeks")
+  cases_by_age <- cases_by_age %>%
+    mutate(Date = ymd(`Date`)) %>%
+    select(-`Start_Date`, -`End_Date`) %>% 
+    rename("Group" = "Age")
+  cases_by_age <- cases_by_age %>%
+    pivot_longer(names(cases_by_age)[names(cases_by_age) != "Date" & names(cases_by_age) != "Group"], names_to = "Trait", values_to = "Value")
+  cases_by_age <- cases_by_age %>% 
+    filter(Group != "Unknown")
+
+  return(cases_by_age)
+}
+
+make_testing_data <- function(){
+  testing_data <- readxl::read_xlsx("today.xlsx", 
+                                    sheet = "Testing2 (Report Date)")
+  testing_data <- testing_data %>%
+    mutate(Date = ymd(`Date`))
+  testing_data <- testing_data %>%
+    pivot_longer(names(testing_data)[names(testing_data) != "Date"], names_to = "Trait", values_to = "Value")
+  
+}
+
 ##
+latest_date <- read_csv("last_update")[[1,1]]
 update_data()
 death_by_date <- make_death_by_date()
 reported_cases <- make_reported_cases()
@@ -213,8 +253,10 @@ latest_county_data <- county_daily %>% filter(Date == max(county_daily$Date), Gr
 weekly_city_town <- make_weekly_city_town()
 towns_DT <- make_town_DT()
 
+age_data <- make_age_data()
+latest_age_data <- age_data %>% filter(Date == max(age_data$Date))
 
-
+testing_data <- make_testing_data()
 
 county_populations <- read_csv("mass_covid/populations/countyPopulations.csv")
 county_populations <- county_populations %>% rename("Group" = "County")
@@ -222,4 +264,8 @@ county_populations <- county_populations %>% rename("Group" = "County")
 town_populations <- read_csv("mass_covid/populations/town_populations.csv")
 town_populations <- town_populations %>% rename("Group" = "city_town")
 
+age_populations <- read_csv("mass_covid/populations/age_group_population.csv")
+age_populations <- age_populations %>% 
+  filter(Age != "Unknown") %>% 
+  rename("Group" = "Age")
 
