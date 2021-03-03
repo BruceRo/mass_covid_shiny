@@ -239,6 +239,7 @@ make_testing_data <- function(){
 ##
 latest_date <- read_csv("last_update")[[1,1]]
 update_data()
+latest_date <- read_csv("last_update")[[1,1]]
 death_by_date <- make_death_by_date()
 reported_cases <- make_reported_cases()
 reported_deaths <- make_reported_deaths()
